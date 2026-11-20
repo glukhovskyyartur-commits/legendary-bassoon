@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>ABB Smart Power AI Visibility</title>
+<script>
+(function(){var d=document.documentElement;d.classList.add('js');var t=null;try{t=localStorage.getItem('abb-theme');}catch(e){}if(t==='dark'||t==='light'){d.setAttribute('data-theme',t);}})();
+</script>
+<style>
+/* Brand tokens read from abb.com: red #EE0000, ink #1F1F1F, neutral greys, ABBvoice type stack, square corners, uppercase 600 headings.
+   Redesign rules: web-design-guidelines (focus, contrast, targets, motion, themes) and design-taste-frontend (hierarchy, one accent, one radius, no card sprawl). */
+:root {
+  --bg: #F6F6F6;
+  --surface: #FCFCFC;
+  --surface-2: #ECECEC;
+  --ink: #1F1F1F;
+  --ink-2: #4A4A4A;
+  --muted: #606060;
+  --line: #CFCFCF;
+  --line-soft: #E2E2E2;
+  --red: #EE0000;
+  --on-red: #FFFFFF;
+  --red-text: #C20000;
+  --red-soft: #FFD9CF;
+  --red-tint: #FCE9E9;
+  --none-text: #A50000;
+  --focus: #1F1F1F;
+  --font-body: ABBvoice, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: ABBvoiceDisplay, ABBvoice, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --radius: 0;
+  --step-0: clamp(1rem, 0.2vw + 0.95rem, 1.0625rem);
+  --step-lede: clamp(1.0625rem, 0.5vw + 0.98rem, 1.25rem);
+  --step-h2: clamp(1.5rem, 1.2vw + 1.1rem, 2rem);
+  --step-h1: clamp(1.875rem, 2.4vw + 1rem, 3.125rem);
+  --gap-section: clamp(56px, 8vw, 96px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --bg: #121212; --surface: #1A1A1A; --surface-2: #262626; --ink: #EDEDED; --ink-2: #B9B9B9; --muted: #9C9C9C;
+  --line: #3D3D3D; --line-soft: #2C2C2C; --red-text: #FF5A5A; --red-soft: #5E1C16; --red-tint: #3B1816; --none-text: #FF8F8F; --focus: #EDEDED; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121212; --surface: #1A1A1A; --surface-2: #262626; --ink: #EDEDED; --ink-2: #B9B9B9; --muted: #9C9C9C;
+  --line: #3D3D3D; --line-soft: #2C2C2C; --red-text: #FF5A5A; --red-soft: #5E1C16; --red-tint: #3B1816; --none-text: #FF8F8F; --focus: #EDEDED; color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-padding-top: 16px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: var(--step-0); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; inset-inline-start: 12px; top: -64px; z-index: 10; background: var(--ink); color: var(--bg); padding: 12px 16px; min-height: 44px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 600; }
+.skip:focus { top: 12px; }
+.wrap { max-width: 1200px; margin-inline: auto; padding-inline: 20px; }
+
+/* top bar: one line, 64px */
+.topbar { background: var(--surface); border-top: 6px solid var(--red); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 58px; }
+.brandline { font-size: 14px; color: var(--ink-2); }
+.brandline b { color: var(--ink); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-inline-end: 10px; }
+.toggle { font: inherit; font-size: 14px; font-weight: 600; min-height: 44px; min-width: 44px; padding: 0 16px; background: transparent; color: var(--ink); border: 1px solid var(--ink); border-radius: var(--radius); cursor: pointer; }
+.toggle[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.toggle:hover { background: var(--surface-2); }
+.toggle[aria-pressed="true"]:hover { background: var(--ink-2); }
+.toggle:active { transform: translateY(1px); }
+html:not(.js) .toggle { display: none; }
+
+.tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.toggle[hidden] { display: none; }
+.sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.chg { font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chg.same { font-weight: 400; color: var(--muted); }
+.chgs { grid-column: 1 / -1; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.chgs.overall { margin: 12px 0 0; font-size: 14px; }
+td.c .chg { display: block; font-weight: 400; font-size: 12px; margin-top: 2px; }
+td.c.none .chg, td.c.r3 .chg, td.c.r4 .chg { color: var(--ink); }
+.chgline { margin-top: 14px; font-size: 14px; }
+.find.lead .chg { color: var(--on-red); }
+.legend li.lchg::before { display: none; }
+.owner { background: var(--surface-2); border-bottom: 1px solid var(--line); padding-block: 20px; }
+.owner[hidden] { display: none; }
+.owner h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.owner p { max-inline-size: 70ch; color: var(--ink-2); font-size: 15px; }
+.owner label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+.owner textarea { inline-size: 100%; max-inline-size: 70ch; font: inherit; font-size: 14px; line-height: 1.5; padding: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--ink-2); border-radius: var(--radius); resize: vertical; }
+.owner .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 12px; }
+.owner #owner-status { font-size: 14px; color: var(--ink); min-block-size: 1.5em; }
+/* hero: split, data is the visual */
+.hero { padding-block: clamp(32px, 5vw, 56px) 0; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); align-items: start; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--red-text); font-weight: 600; margin-bottom: 16px; }
+h1 { font-size: var(--step-h1); line-height: 1.04; text-transform: uppercase; letter-spacing: -.005em; max-inline-size: 20ch; }
+.lede { font-size: var(--step-lede); line-height: 1.45; max-inline-size: 38ch; margin-top: 24px; color: var(--ink-2); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn { font: inherit; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 24px; font-weight: 600; text-decoration: none; border-radius: var(--radius); border: 1px solid var(--ink); color: var(--ink); background: transparent; white-space: nowrap; }
+.btn.primary { background: var(--red); border-color: var(--red); color: var(--on-red); }
+.btn.primary:hover { background: #C90000; border-color: #C90000; }
+.btn:not(.primary):hover { background: var(--surface-2); }
+.btn:active { transform: translateY(1px); }
+
+.panel-box { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--red); padding: 8px 24px 20px; }
+.panel-box h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); padding-top: 16px; }
+ul.ledger { list-style: none; margin: 0; padding: 0; }
+.ledger li { display: grid; grid-template-columns: 1fr auto; column-gap: 16px; padding: 16px 0 14px; border-bottom: 1px solid var(--line-soft); }
+.ledger li:last-child { border-bottom: 0; }
+.ledger h3 { font-size: 15px; font-weight: 600; align-self: end; }
+.ledger .pct { font-family: var(--font-display); font-size: 40px; line-height: 1; font-weight: 300; font-variant-numeric: tabular-nums; text-align: end; }
+.ledger .pct span { font-size: 20px; margin-inline-start: 1px; }
+.ledger .meter { grid-column: 1 / -1; display: block; height: 8px; margin-top: 10px; }
+.ledger .meter i { display: block; height: 100%; background: var(--red); transform-origin: left center; }
+.ledger .meta { grid-column: 1 / -1; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.panel-box .note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* sections */
+section { padding-block: var(--gap-section) 0; }
+main > section:last-of-type { padding-bottom: var(--gap-section); }
+h2.title { font-size: var(--step-h2); line-height: 1.12; text-transform: uppercase; max-inline-size: 28ch; }
+.sub { color: var(--ink-2); max-inline-size: 62ch; margin-top: 12px; }
+.note { font-size: 14px; color: var(--muted); max-inline-size: 72ch; margin-top: 16px; }
+
+/* findings: bento with one lead cell */
+.finds { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-rows: auto auto; gap: 16px; margin-top: 32px; }
+.find { padding: 28px; background: var(--surface); border: 1px solid var(--line); }
+.find h3 { font-size: 17px; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 10px; }
+.find .stat { font-family: var(--font-display); font-weight: 300; font-size: clamp(40px, 5vw, 64px); line-height: 1; font-variant-numeric: tabular-nums; margin-bottom: 16px; }
+.find .stat small { font-size: .4em; font-weight: 400; margin-inline-start: 8px; letter-spacing: .02em; }
+.find p { max-inline-size: 52ch; }
+.find.lead { grid-row: 1 / span 2; background: var(--red); border-color: var(--red); color: var(--on-red); display: flex; flex-direction: column; justify-content: flex-end; min-height: 360px; }
+.find.lead .stat { font-size: clamp(56px, 8vw, 104px); }
+.find.lead p { font-size: 17px; }
+.find.tint { background: var(--surface-2); border-color: var(--surface-2); }
+
+/* tabs */
+.tablist { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 32px; border-bottom: 1px solid var(--line); }
+html:not(.js) .tablist { display: none; }
+.tab { font: inherit; text-align: start; min-height: 72px; padding: 14px 16px 12px; background: transparent; color: var(--ink-2); border: 0; border-top: 4px solid var(--line); border-radius: var(--radius); cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.tab b { font-size: 16px; font-weight: 600; color: var(--ink); }
+.tab span { font-size: 13px; }
+.tab:hover { background: var(--surface-2); }
+.tab[aria-selected="true"] { background: var(--surface); border-top-color: var(--red); box-shadow: inset 0 -1px 0 var(--surface); }
+.tab[aria-selected="true"] b { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.tabpanel { background: var(--surface); border: 1px solid var(--line); border-top: 0; padding: 24px; }
+html:not(.js) .tabpanel { margin-top: 24px; border-top: 1px solid var(--line); }
+.tabpanel[hidden] { display: none; }
+.tabpanel > h3 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 12px; }
+dl.stagesum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0 0 20px; border: 1px solid var(--line-soft); }
+.stagesum div { padding: 12px 14px; border-inline-end: 1px solid var(--line-soft); }
+.stagesum div:last-child { border-inline-end: 0; }
+.stagesum dt { font-size: 13px; color: var(--ink-2); }
+.stagesum dd { margin: 2px 0 0; font-family: var(--font-display); font-weight: 600; font-size: 22px; font-variant-numeric: tabular-nums; }
+.stagesum dd small { font-family: var(--font-body); font-weight: 400; font-size: 13px; color: var(--muted); margin-inline-start: 4px; }
+.scroll { overflow-x: auto; border: 1px solid var(--line-soft); }
+table { border-collapse: collapse; inline-size: 100%; font-size: 14px; }
+caption { text-align: start; padding: 0; }
+th, td { padding: 10px 12px; text-align: start; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+tbody tr:last-child > * { border-bottom: 0; }
+thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); background: var(--surface-2); vertical-align: bottom; }
+tbody th { font-weight: 400; min-inline-size: 300px; max-inline-size: 420px; }
+.qn { display: inline-block; min-inline-size: 28px; color: var(--muted); font-variant-numeric: tabular-nums; }
+td.c { text-align: center; font-weight: 600; white-space: nowrap; min-inline-size: 96px; font-variant-numeric: tabular-nums; vertical-align: middle; }
+td.r1 { background: var(--red); color: var(--on-red); }
+td.r3 { background: var(--red-soft); color: var(--ink); }
+td.r4 { background: var(--red-tint); color: var(--ink); }
+td.none { color: var(--none-text); box-shadow: inset 0 0 0 1px var(--none-text); }
+td.nb { color: var(--muted); font-weight: 400; font-size: 13px; }
+td.noaio { background: repeating-linear-gradient(135deg, transparent, transparent 6px, var(--line-soft) 6px, var(--line-soft) 7px); color: var(--muted); font-weight: 400; font-size: 13px; }
+td.lead { color: var(--ink-2); font-size: 13px; min-inline-size: 150px; vertical-align: middle; }
+details.order { margin-top: 4px; }
+details.order summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13px; color: var(--ink-2); list-style: none; text-decoration: underline; text-underline-offset: 3px; }
+details.order summary::-webkit-details-marker { display: none; }
+details.order summary::after { content: ""; inline-size: 7px; block-size: 7px; border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); margin-inline-start: 10px; }
+details.order[open] summary::after { transform: translateY(1px) rotate(-135deg); }
+details.order dl { margin: 0 0 8px; display: grid; gap: 6px; font-size: 13px; }
+details.order dt { font-weight: 600; }
+details.order dd { margin: 0; color: var(--ink-2); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; font-size: 13px; color: var(--ink-2); padding: 0; list-style: none; }
+.legend li { display: inline-flex; align-items: center; gap: 8px; }
+.legend li::before { content: ""; inline-size: 16px; block-size: 16px; border: 1px solid var(--line); }
+.legend .l1::before { background: var(--red); border-color: var(--red); }
+.legend .l3::before { background: var(--red-soft); }
+.legend .l4::before { background: var(--red-tint); }
+.legend .ln::before { box-shadow: inset 0 0 0 1px var(--none-text); border-color: var(--none-text); }
+.legend .la::before { background: repeating-linear-gradient(135deg, transparent, transparent 3px, var(--line) 3px, var(--line) 4px); }
+
+/* two column charts, each with its own stacked header */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 5vw, 72px); }
+.two h2 { font-size: var(--step-h2); line-height: 1.12; text-transform: uppercase; }
+ul.bars { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 10px; }
+ul.bars li { display: grid; grid-template-columns: minmax(110px, 190px) minmax(0, 1fr) auto; gap: 12px; align-items: center; font-size: 14px; }
+ul.bars .lab { overflow-wrap: anywhere; }
+ul.bars .bar { display: block; height: 12px; }
+ul.bars .bar i { display: block; height: 100%; background: var(--ink-2); transform-origin: left center; }
+ul.bars li.abb .bar i { background: var(--red); }
+ul.bars li.abb .lab { font-weight: 600; }
+ul.bars .val { font-weight: 600; font-variant-numeric: tabular-nums; text-align: end; }
+ul.bars .val small { font-weight: 400; color: var(--muted); font-size: 12px; }
+
+/* fixes: accordion */
+.fixes { margin-top: 32px; border-top: 1px solid var(--line); }
+.fixes details { border-bottom: 1px solid var(--line); }
+.fixes summary { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 72px; padding: 14px 4px; cursor: pointer; list-style: none; }
+.fixes summary::-webkit-details-marker { display: none; }
+.fixes summary:hover { background: var(--surface-2); }
+.fixes .n { font-family: var(--font-display); font-weight: 300; font-size: 36px; line-height: 1; color: var(--red-text); font-variant-numeric: tabular-nums; padding-inline-start: 8px; }
+.fixes .t { font-family: var(--font-display); font-weight: 600; font-size: clamp(17px, 1.2vw + 12px, 21px); line-height: 1.25; text-wrap: balance; }
+.fixes summary::after { content: ""; inline-size: 10px; block-size: 10px; border-inline-end: 2px solid var(--ink); border-block-end: 2px solid var(--ink); transform: translateY(-3px) rotate(45deg); margin-inline-end: 12px; }
+.fixes details[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+.fixes .body { padding: 0 12px 28px 72px; display: grid; gap: 10px; max-inline-size: 78ch; }
+.fixes .ev { font-size: 14px; color: var(--ink-2); }
+.fixes .ev b { color: var(--ink); }
+
+/* method */
+dl.method { margin: 24px 0 0; display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: 0 32px; max-inline-size: 960px; }
+dl.method dt { font-weight: 600; padding: 14px 0; border-top: 1px solid var(--line); }
+dl.method dd { margin: 0; padding: 14px 0; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 15px; }
+
+footer { margin-top: 0; padding-block: 32px 56px; border-top: 6px solid var(--red); background: var(--surface); font-size: 14px; color: var(--ink-2); }
+footer p { max-inline-size: 90ch; }
+
+/* motion: dial 3. Hover and press feedback only, no automatic animation. Reduced motion still respected. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+@media (prefers-contrast: more) {
+  :root { --line: #6A6A6A; --line-soft: #8A8A8A; --muted: var(--ink-2); }
+}
+@media (forced-colors: active) {
+  .ledger .meter i, ul.bars .bar i { background: Highlight; forced-color-adjust: none; }
+  td.c, .tab[aria-selected="true"], .find.lead { border: 1px solid CanvasText; }
+}
+
+/* mobile: strict single column under 768px */
+@media (max-width: 767px) {
+  .hero-grid, .finds, .two { grid-template-columns: 1fr; }
+  .find.lead { grid-row: auto; min-height: 280px; }
+  .tablist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  dl.stagesum { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stagesum div:nth-child(2) { border-inline-end: 0; }
+  .stagesum div:nth-child(-n+2) { border-bottom: 1px solid var(--line-soft); }
+  .tabpanel { padding: 16px; }
+  .fixes summary { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .fixes .n { font-size: 28px; }
+  .fixes .body { padding-inline: 4px 4px; }
+  dl.method { grid-template-columns: 1fr; }
+  dl.method dt { padding-bottom: 0; border-bottom: 0; }
+  dl.method dd { border-top: 0; padding-top: 4px; }
+  ul.bars li { grid-template-columns: minmax(0, 1fr) auto; }
+  ul.bars .bar { grid-column: 1 / -1; grid-row: 2; }
+  .brandline span { display: none; }
+}
+@media (max-width: 420px) { .btn { white-space: normal; text-align: center; } }
+@media print { .tablist { display: none; } .tabpanel[hidden] { display: block; } .skip, .toggle { display: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="topbar"><div class="wrap">
+<p class="brandline"><b>ABB Smart Power</b><span>AI-search visibility scorecard. Independent analysis by Artur.</span></p>
+<div class="tools">
+<button class="toggle" id="theme" type="button" aria-pressed="false">Dark mode</button>
+</div>
+</div></div>
+
+<header class="hero">
+<div class="wrap hero-grid">
+<div>
+<p class="eyebrow">Buying Opportunities EcoSystem</p>
+<h1>ABB appears in 81% of AI answers</h1>
+<p class="lede">Tested with 20 buyer questions. ABB leads on selection. Distributors lead on where to buy.</p>
+<div class="cta">
+<a class="btn primary" href="#fixes">Read the five fixes</a>
+<a class="btn" href="#questions">See all 20 questions</a>
+</div>
+</div>
+<aside class="panel-box" aria-labelledby="ledger-h">
+<h2 id="ledger-h">ABB named, by AI surface</h2>
+<ul class="ledger"><li><h3>ChatGPT</h3><p class="pct">76<span>%</span></p><span class="meter" aria-hidden="true"><i style="width:76%"></i></span><p class="meta">13 of 17 answers. Average position 2.2. Named first in 5.</p></li><li><h3>Google AI Mode</h3><p class="pct">82<span>%</span></p><span class="meter" aria-hidden="true"><i style="width:82%"></i></span><p class="meta">14 of 17 answers. Average position 2.1. Named first in 7.</p></li><li><h3>Google AI Overviews</h3><p class="pct">77<span>%</span></p><span class="meter" aria-hidden="true"><i style="width:77%"></i></span><p class="meta">10 of 13 answers. Average position 2.2. Named first in 6.</p></li><li><h3>Claude</h3><p class="pct">88<span>%</span></p><span class="meter" aria-hidden="true"><i style="width:88%"></i></span><p class="meta">15 of 17 answers. Average position 2.9. Named first in 5.</p></li></ul>
+<p class="chgs overall">First snapshot. Arrows will show changes after the next refresh.</p>
+<p class="note">Snapshot 19 November 2026. The 17 questions without a brand in them. Google showed an AI Overview for 13 of the 17.</p>
+</aside>
+</div>
+</header>
+
+<main id="main">
+
+<section aria-labelledby="finds-h">
+<div class="wrap">
+<h2 class="title" id="finds-h">Three findings</h2>
+<div class="finds">
+<article class="find lead"><div class="stat">12 of 22</div><h3>Buying answers go to distributors first</h3><p>Onninen, Ahlsell, Farnell, RS Components and Mouser are named ahead of ABB. ABB's own pages are cited in 5 of 16 answers that show sources.</p><p class="chgline"></p></article>
+<article class="find tint"><div class="stat">13 of 17</div><h3>Selection is a strength</h3><p>ABB is named first on breaker brands, soft starters, motor protection and switch disconnectors. Its own pages are cited in only 6 of 16 answers with sources.</p><p class="chgline"></p></article>
+<article class="find"><div class="stat">16 of 20</div><h3>Data centers: named, rarely first</h3><p>Schneider Electric appears in 19 data-center answers and Vertiv in 18. On the general best-UPS question, three of four surfaces leave ABB out.</p><p class="chgline"></p></article>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="questions-h" id="questions">
+<div class="wrap">
+<h2 class="title" id="questions-h">Question by question</h2>
+<p class="sub">Choose a stage. Each row shows where ABB lands in each answer. Open a row to see the brands in the order they were named.</p>
+<div class="tablist" role="tablist" aria-label="Question stage"><button class="tab" role="tab" type="button" id="tab-buy" aria-controls="panel-buy" aria-selected="true" tabindex="0"><b>Where to buy</b><span>ABB in 19 of 22 answers</span></button><button class="tab" role="tab" type="button" id="tab-sel" aria-controls="panel-sel" aria-selected="false" tabindex="-1"><b>Product selection</b><span>ABB in 17 of 22 answers</span></button><button class="tab" role="tab" type="button" id="tab-dc" aria-controls="panel-dc" aria-selected="false" tabindex="-1"><b>Data centers</b><span>ABB in 16 of 20 answers</span></button><button class="tab" role="tab" type="button" id="tab-brand" aria-controls="panel-brand" aria-selected="false" tabindex="-1"><b>Brand checks</b><span>3 questions, left out of totals</span></button></div>
+<div class="tabpanel" role="tabpanel" id="panel-buy" aria-labelledby="tab-buy" tabindex="0"><h3>Where to buy: 6 questions</h3><dl class="stagesum"><div><dt>ChatGPT</dt><dd>5 of 6<small>answers</small></dd></div><div><dt>Google AI Mode</dt><dd>6 of 6<small>answers</small></dd></div><div><dt>Google AI Overviews</dt><dd>3 of 4<small>answers</small></dd></div><div><dt>Claude</dt><dd>5 of 6<small>answers</small></dd></div></dl><div class="scroll" role="region" aria-label="Where to buy questions, scrollable table" tabindex="0"><table><thead><tr><th scope="col">Question</th><th scope="col">ChatGPT</th><th scope="col">AI Mode</th><th scope="col">AI Overviews</th><th scope="col">Claude</th><th scope="col">Named first most often</th></tr></thead><tbody><tr><th scope="row"><span class="qn">1</span>Where can I buy industrial circuit breakers online in Finland?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Onninen, ABB, Eaton, Schneider Electric, Mouser, Siemens</dd><dt>Google AI Mode</dt><dd>ABB, Schneider Electric, Eaton, Siemens, Onninen, Sonepar, Hager and more</dd><dt>Google AI Overviews</dt><dd>Google showed no AI Overview for this question.</dd><dt>Claude</dt><dd>Onninen, ABB, Farnell, Klinkmann, Finn Electric, Mouser</dd></dl></details></th><td class="c r3">2nd</td><td class="c r1">1st</td><td class="c noaio">No AI Overview</td><td class="c r3">2nd</td><td class="lead">Onninen (2 of 3)</td></tr><tr><th scope="row"><span class="qn">2</span>Which distributors sell industrial soft starters and motor protection online in Europe?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Siemens, ABB, Schneider Electric, Eaton, RS Components, Farnell, Mouser and more</dd><dt>Google AI Mode</dt><dd>RS Components, Siemens, Schneider Electric, ABB, Eaton, Farnell, Mouser and more</dd><dt>Google AI Overviews</dt><dd>Mouser, Siemens, Schneider Electric, Eaton, ABB, Danfoss</dd><dt>Claude</dt><dd>Farnell, RS Components, ABB, TME, Galaxus, Eaton, Breemes and more</dd></dl></details></th><td class="c r3">2nd</td><td class="c r4">4th</td><td class="c r4">5th</td><td class="c r3">3rd</td><td class="lead">Siemens (1 of 4)</td></tr><tr><th scope="row"><span class="qn">3</span>How do I find the right replacement circuit breaker by part number?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Siemens, Eaton, Schneider Electric, ABB</dd><dt>Google AI Mode</dt><dd>ABB, Schneider Electric, Hager, Eaton, Siemens, Onninen, Rexel</dd><dt>Google AI Overviews</dt><dd>Eaton</dd><dt>Claude</dt><dd>Schneider Electric, Eaton, Siemens, Relectric, Bay Power</dd></dl></details></th><td class="c r4">4th</td><td class="c r1">1st</td><td class="c none">Not named</td><td class="c none">Not named</td><td class="lead">Siemens (1 of 4)</td></tr><tr><th scope="row"><span class="qn">4</span>Who are the best industrial electrical distributors in the Nordics for circuit breakers and switchgear?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Ahlsell, Sonepar, Onninen, Rexel</dd><dt>Google AI Mode</dt><dd>Ahlsell, Sonepar, Onninen, ABB, Schneider Electric, Siemens, Eaton and more</dd><dt>Google AI Overviews</dt><dd>Ahlsell, Onninen, Sonepar, Rexel, ABB, Schneider Electric, Siemens and more</dd><dt>Claude</dt><dd>Onninen, Ahlsell, Elektroskandia, Sonepar, Rexel, Klinkmann, Finn Electric and more</dd></dl></details></th><td class="c none">Not named</td><td class="c r4">4th</td><td class="c r4">5th</td><td class="c r4">11th</td><td class="lead">Ahlsell (3 of 4)</td></tr><tr><th scope="row"><span class="qn">5</span>Where can I buy switch disconnectors for industrial plants online?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Farnell, ABB, Siemens, Eaton, Schneider Electric, Lovato, Mouser and more</dd><dt>Google AI Mode</dt><dd>Mouser, ABB, Siemens, Eaton, Schneider Electric, Farnell, Sonepar and more</dd><dt>Google AI Overviews</dt><dd>Google showed no AI Overview for this question.</dd><dt>Claude</dt><dd>RS Components, Farnell, Lakeland Engineering, ABB, Siemens, Schneider Electric, Eaton</dd></dl></details></th><td class="c r3">2nd</td><td class="c r3">2nd</td><td class="c noaio">No AI Overview</td><td class="c r4">4th</td><td class="lead">Farnell (1 of 3)</td></tr><tr><th scope="row"><span class="qn">6</span>Which manufacturers give the best product data and CAD files for low-voltage circuit breakers?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Siemens, Schneider Electric, Eaton, ABB, Mitsubishi Electric, Legrand</dd><dt>Google AI Mode</dt><dd>Siemens, Schneider Electric, ABB, Eaton</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric, Siemens, Mitsubishi Electric, Eaton, Legrand</dd><dt>Claude</dt><dd>ABB, EPLAN, Schneider Electric, Eaton, Mitsubishi Electric</dd></dl></details></th><td class="c r4">4th</td><td class="c r3">3rd</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="lead">Siemens (2 of 4)</td></tr></tbody></table></div></div><div class="tabpanel" role="tabpanel" id="panel-sel" aria-labelledby="tab-sel" tabindex="0"><h3>Product selection: 6 questions</h3><dl class="stagesum"><div><dt>ChatGPT</dt><dd>4 of 6<small>answers</small></dd></div><div><dt>Google AI Mode</dt><dd>4 of 6<small>answers</small></dd></div><div><dt>Google AI Overviews</dt><dd>3 of 4<small>answers</small></dd></div><div><dt>Claude</dt><dd>6 of 6<small>answers</small></dd></div></dl><div class="scroll" role="region" aria-label="Product selection questions, scrollable table" tabindex="0"><table><thead><tr><th scope="col">Question</th><th scope="col">ChatGPT</th><th scope="col">AI Mode</th><th scope="col">AI Overviews</th><th scope="col">Claude</th><th scope="col">Named first most often</th></tr></thead><tbody><tr><th scope="row"><span class="qn">7</span>What are the best low-voltage circuit breaker brands for industrial plants?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Mitsubishi Electric</dd><dt>Google AI Mode</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Mitsubishi Electric, Rockwell</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Mitsubishi Electric, Legrand</dd><dt>Claude</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Mitsubishi Electric</dd></dl></details></th><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="lead">ABB (4 of 4)</td></tr><tr><th scope="row"><span class="qn">8</span>How do I choose between a molded case and an air circuit breaker?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>No brands named.</dd><dt>Google AI Mode</dt><dd>No brands named.</dd><dt>Google AI Overviews</dt><dd>No brands named.</dd><dt>Claude</dt><dd>ABB, Schneider Electric, Siemens</dd></dl></details></th><td class="c nb">No brands named</td><td class="c nb">No brands named</td><td class="c nb">No brands named</td><td class="c r1">1st</td><td class="lead">ABB (1 of 1)</td></tr><tr><th scope="row"><span class="qn">9</span>What is the best soft starter brand for industrial motors?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Siemens, Schneider Electric, Danfoss, Eaton</dd><dt>Google AI Mode</dt><dd>ABB, Siemens, Schneider Electric, Rockwell, Eaton, Danfoss</dd><dt>Google AI Overviews</dt><dd>Google showed no AI Overview for this question.</dd><dt>Claude</dt><dd>Siemens, ABB, Schneider Electric, Eaton, WEG, Rockwell, DOLD</dd></dl></details></th><td class="c r1">1st</td><td class="c r1">1st</td><td class="c noaio">No AI Overview</td><td class="c r3">2nd</td><td class="lead">ABB (2 of 3)</td></tr><tr><th scope="row"><span class="qn">10</span>Soft starter or variable frequency drive: which is better for pumps and fans?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>No brands named.</dd><dt>Google AI Mode</dt><dd>No brands named.</dd><dt>Google AI Overviews</dt><dd>Google showed no AI Overview for this question.</dd><dt>Claude</dt><dd>ABB, Siemens, Schneider Electric, Danfoss, Rockwell</dd></dl></details></th><td class="c nb">No brands named</td><td class="c nb">No brands named</td><td class="c noaio">No AI Overview</td><td class="c r1">1st</td><td class="lead">ABB (1 of 1)</td></tr><tr><th scope="row"><span class="qn">11</span>What are the best motor protection and starting solutions for factories?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Siemens, Schneider Electric, Eaton, Rockwell</dd><dt>Google AI Mode</dt><dd>Schneider Electric, ABB, Siemens</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric</dd><dt>Claude</dt><dd>Siemens, ABB, Schneider Electric, Rockwell, Eaton, Littelfuse</dd></dl></details></th><td class="c r1">1st</td><td class="c r3">2nd</td><td class="c r1">1st</td><td class="c r3">2nd</td><td class="lead">ABB (2 of 4)</td></tr><tr><th scope="row"><span class="qn">12</span>Which brands make reliable switch disconnectors and safety switches for industrial plants?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Siemens, Schneider Electric, Socomec, Eaton, Lovato</dd><dt>Google AI Mode</dt><dd>ABB, Siemens, Schneider Electric, Eaton, Socomec, RS Components, Lovato</dd><dt>Google AI Overviews</dt><dd>ABB, Siemens, Schneider Electric, Eaton, Lovato, Legrand</dd><dt>Claude</dt><dd>Siemens, Schneider Electric, Rockwell, ABB, Eaton, Kraus &amp; Naimer, Lovato</dd></dl></details></th><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r4">4th</td><td class="lead">ABB (3 of 4)</td></tr></tbody></table></div></div><div class="tabpanel" role="tabpanel" id="panel-dc" aria-labelledby="tab-dc" tabindex="0"><h3>Data centers: 5 questions</h3><dl class="stagesum"><div><dt>ChatGPT</dt><dd>4 of 5<small>answers</small></dd></div><div><dt>Google AI Mode</dt><dd>4 of 5<small>answers</small></dd></div><div><dt>Google AI Overviews</dt><dd>4 of 5<small>answers</small></dd></div><div><dt>Claude</dt><dd>4 of 5<small>answers</small></dd></div></dl><div class="scroll" role="region" aria-label="Data centers questions, scrollable table" tabindex="0"><table><thead><tr><th scope="col">Question</th><th scope="col">ChatGPT</th><th scope="col">AI Mode</th><th scope="col">AI Overviews</th><th scope="col">Claude</th><th scope="col">Named first most often</th></tr></thead><tbody><tr><th scope="row"><span class="qn">14</span>What are the best UPS systems for a large data center?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Schneider Electric, Vertiv, Eaton, ABB, Mitsubishi Electric</dd><dt>Google AI Mode</dt><dd>Schneider Electric, Vertiv, Eaton, Mitsubishi Electric, Fuji Electric</dd><dt>Google AI Overviews</dt><dd>Schneider Electric, Vertiv, Eaton</dd><dt>Claude</dt><dd>Schneider Electric, Eaton, Vertiv, Mitsubishi Electric</dd></dl></details></th><td class="c r4">4th</td><td class="c none">Not named</td><td class="c none">Not named</td><td class="c none">Not named</td><td class="lead">Schneider Electric (4 of 4)</td></tr><tr><th scope="row"><span class="qn">15</span>What are the best UPS brands for a data center in the Nordics?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Vertiv, Schneider Electric, Eaton, ABB, Socomec, Riello UPS</dd><dt>Google AI Mode</dt><dd>Eaton, Schneider Electric, ABB, Vertiv, Riello UPS</dd><dt>Google AI Overviews</dt><dd>Schneider Electric, Eaton, Vertiv, ABB, Riello UPS, Delta, Huawei</dd><dt>Claude</dt><dd>Schneider Electric, Vertiv, Eaton, ABB, Mitsubishi Electric, Huawei</dd></dl></details></th><td class="c r4">4th</td><td class="c r3">3rd</td><td class="c r4">4th</td><td class="c r4">4th</td><td class="lead">Schneider Electric (2 of 4)</td></tr><tr><th scope="row"><span class="qn">16</span>Which low-voltage switchgear suppliers are best for data centers?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Schneider Electric, ABB, Eaton, Siemens, Vertiv, Legrand, Socomec and more</dd><dt>Google AI Mode</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Delta</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric, Siemens, Eaton</dd><dt>Claude</dt><dd>ABB, Schneider Electric, Eaton, Vertiv, Siemens, Legrand, nVent</dd></dl></details></th><td class="c r3">2nd</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="lead">ABB (3 of 4)</td></tr><tr><th scope="row"><span class="qn">17</span>What is the best UPS for AI data centers with high-density racks?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Vertiv, Schneider Electric, Eaton</dd><dt>Google AI Mode</dt><dd>Vertiv, Schneider Electric, Eaton, ABB</dd><dt>Google AI Overviews</dt><dd>Vertiv, ABB, Fuji Electric</dd><dt>Claude</dt><dd>Vertiv, Schneider Electric, ABB, Eaton</dd></dl></details></th><td class="c none">Not named</td><td class="c r4">4th</td><td class="c r3">2nd</td><td class="c r3">3rd</td><td class="lead">Vertiv (4 of 4)</td></tr><tr><th scope="row"><span class="qn">18</span>Which electrical equipment manufacturers have the best data center reference projects in the Nordics?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Schneider Electric, Eaton, Vertiv, Hitachi, Legrand, Siemens</dd><dt>Google AI Mode</dt><dd>ABB, Schneider Electric, Eaton, Vertiv, Hitachi</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric, Eaton, Siemens, Vertiv</dd><dt>Claude</dt><dd>Schneider Electric, Vertiv, ABB, Eaton, Rejlers</dd></dl></details></th><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r1">1st</td><td class="c r3">3rd</td><td class="lead">ABB (3 of 4)</td></tr></tbody></table></div></div><div class="tabpanel" role="tabpanel" id="panel-brand" aria-labelledby="tab-brand" tabindex="0"><h3>Brand checks: 3 questions</h3><p class="note" style="margin:0 0 20px">These three questions name ABB themselves, so they are shown for context only.</p><div class="scroll" role="region" aria-label="Brand checks questions, scrollable table" tabindex="0"><table><thead><tr><th scope="col">Question</th><th scope="col">ChatGPT</th><th scope="col">AI Mode</th><th scope="col">AI Overviews</th><th scope="col">Claude</th><th scope="col">Named first most often</th></tr></thead><tbody><tr><th scope="row"><span class="qn">13</span>ABB vs Schneider Electric vs Siemens: which circuit breaker range is best for industrial use?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Schneider Electric, Siemens</dd><dt>Google AI Mode</dt><dd>ABB, Siemens, Schneider Electric</dd><dt>Google AI Overviews</dt><dd>ABB, Schneider Electric, Siemens</dd><dt>Claude</dt><dd>ABB, Schneider Electric, Siemens</dd></dl></details></th><td class="c r1">Named first</td><td class="c r1">Named first</td><td class="c r1">Named first</td><td class="c r1">Named first</td><td class="lead">Question names ABB</td></tr><tr><th scope="row"><span class="qn">19</span>Is ABB a good brand for industrial circuit breakers?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>ABB, Schneider Electric, Siemens, Eaton, Mitsubishi Electric</dd><dt>Google AI Mode</dt><dd>ABB, Siemens, Schneider Electric, Eaton</dd><dt>Google AI Overviews</dt><dd>Google showed no AI Overview for this question.</dd><dt>Claude</dt><dd>ABB, Schneider Electric, Siemens, Eaton</dd></dl></details></th><td class="c r1">Named first</td><td class="c r1">Named first</td><td class="c noaio">No AI Overview</td><td class="c r1">Named first</td><td class="lead">Question names ABB</td></tr><tr><th scope="row"><span class="qn">20</span>ABB vs Eaton vs Vertiv: which UPS is better for a data center?<details class="order"><summary>Brands named, in order</summary><dl><dt>ChatGPT</dt><dd>Names ABB first in its text but recommends Eaton or Vertiv as first choices.</dd><dt>Google AI Mode</dt><dd>Eaton, Vertiv, ABB, Schneider Electric</dd><dt>Google AI Overviews</dt><dd>Eaton, Vertiv, ABB, Schneider Electric, Delta</dd><dt>Claude</dt><dd>Vertiv, Eaton, ABB</dd></dl></details></th><td class="c r3">3rd</td><td class="c r3">3rd</td><td class="c r3">3rd</td><td class="c r3">3rd</td><td class="lead">Eaton or Vertiv recommended first</td></tr></tbody></table></div></div>
+<ul class="legend" aria-label="Colour key">
+<li class="l1">1st</li><li class="l3">2nd or 3rd</li><li class="l4">4th or lower</li><li class="ln">Brands named, not ABB</li><li class="la">No AI Overview</li>
+</ul>
+<p class="note">Questions 13, 19 and 20 name ABB in the question, so they are shown but left out of every percentage. On question 20 (ABB vs Eaton vs Vertiv for UPS) all four surfaces put Eaton or Vertiv ahead of ABB. Questions 8 and 10 ask how to choose, so ChatGPT and AI Mode answer without naming brands.</p>
+</div>
+</section>
+
+<section aria-label="Competitors and sources">
+<div class="wrap two">
+<div>
+<h2 id="sov-h">Who else gets named</h2>
+<p class="sub">Answers naming each brand, out of 64 answers on the 17 questions without a brand in them.</p>
+<ul class="bars" aria-labelledby="sov-h"><li class=""><span class="lab">Schneider Electric</span><span class="bar" aria-hidden="true"><i style="width:82.8%"></i></span><span class="val">53 <small>of 64</small></span></li><li class="abb"><span class="lab">ABB</span><span class="bar" aria-hidden="true"><i style="width:81.2%"></i></span><span class="val">52 <small>of 64</small></span></li><li class=""><span class="lab">Eaton</span><span class="bar" aria-hidden="true"><i style="width:79.7%"></i></span><span class="val">51 <small>of 64</small></span></li><li class=""><span class="lab">Siemens</span><span class="bar" aria-hidden="true"><i style="width:60.9%"></i></span><span class="val">39 <small>of 64</small></span></li><li class=""><span class="lab">Vertiv</span><span class="bar" aria-hidden="true"><i style="width:28.1%"></i></span><span class="val">18 <small>of 64</small></span></li><li class=""><span class="lab">Mitsubishi Electric</span><span class="bar" aria-hidden="true"><i style="width:18.8%"></i></span><span class="val">12 <small>of 64</small></span></li></ul>
+<p class="note">ABB, Schneider Electric and Eaton are close to level. Siemens trails by about 13 answers, and Vertiv appears only on data-center questions.</p>
+</div>
+<div>
+<h2 id="dom-h">Where the answers come from</h2>
+<p class="sub">Answers citing each domain, across Google AI Mode, AI Overviews and Claude (47 answers with sources).</p>
+<ul class="bars" aria-labelledby="dom-h"><li class="abb"><span class="lab">abb.com (all ABB sites)</span><span class="bar" aria-hidden="true"><i style="width:100.0%"></i></span><span class="val">20</span></li><li class=""><span class="lab">eaton.com</span><span class="bar" aria-hidden="true"><i style="width:65.0%"></i></span><span class="val">13</span></li><li class=""><span class="lab">se.com</span><span class="bar" aria-hidden="true"><i style="width:60.0%"></i></span><span class="val">12</span></li><li class=""><span class="lab">linkedin.com</span><span class="bar" aria-hidden="true"><i style="width:50.0%"></i></span><span class="val">10</span></li><li class=""><span class="lab">youtube.com</span><span class="bar" aria-hidden="true"><i style="width:45.0%"></i></span><span class="val">9</span></li><li class=""><span class="lab">reddit.com</span><span class="bar" aria-hidden="true"><i style="width:40.0%"></i></span><span class="val">8</span></li><li class=""><span class="lab">siemens.com</span><span class="bar" aria-hidden="true"><i style="width:30.0%"></i></span><span class="val">6</span></li><li class=""><span class="lab">stoklink.com</span><span class="bar" aria-hidden="true"><i style="width:30.0%"></i></span><span class="val">6</span></li><li class=""><span class="lab">vertiv.com</span><span class="bar" aria-hidden="true"><i style="width:30.0%"></i></span><span class="val">6</span></li><li class=""><span class="lab">facebook.com</span><span class="bar" aria-hidden="true"><i style="width:25.0%"></i></span><span class="val">5</span></li><li class=""><span class="lab">onninen.fi</span><span class="bar" aria-hidden="true"><i style="width:20.0%"></i></span><span class="val">4</span></li></ul>
+<p class="note">ABB sites are cited in 20 of 47 answers, ahead of eaton.com (13) and se.com (12). Reseller pages also shape answers: stoklink.com appears in 6 answers and huyuglobal.com in 4. ChatGPT's guest view shows no source list, so it is left out here.</p>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="fixes-h" id="fixes">
+<div class="wrap">
+<h2 class="title" id="fixes-h">Five fixes, in order</h2>
+<p class="sub">Each fix comes with the evidence behind it. The first is open.</p>
+<div class="fixes">
+<details name="fixes" open><summary><span class="n">1</span><span class="t">Answer "where can I buy this in Finland" on an ABB page</span></summary>
+<div class="body"><p>Write the answer in plain text on the eFinder country pages: which approved distributors sell online, what to expect on stock and lead time, and how to order by part number.</p>
+<p class="ev"><b>Evidence:</b> distributors are named first in 12 of 22 buying answers. Onninen's Finnish shop is cited in 4 answers and Farnell Finland in 4. ChatGPT names no ABB product at all for the Nordic distributor question. Claude lists ABB 11th of 11 there, and cites the eFinder page.</p></div></details>
+<details name="fixes"><summary><span class="n">2</span><span class="t">Publish a part-number and replacement lookup</span></summary>
+<div class="body"><p>One page per breaker family that takes a type designation and returns the replacement, with the data a buyer needs to confirm the match: rated current, poles, breaking capacity, trip unit.</p>
+<p class="ev"><b>Evidence:</b> for "How do I find the right replacement circuit breaker by part number?", Claude and AI Overviews do not name ABB. The pages Claude cites are Schneider Electric, Eaton and Siemens cross-reference material.</p></div></details>
+<details name="fixes"><summary><span class="n">3</span><span class="t">Give each UPS family a page that states the case</span></summary>
+<div class="body"><p>MegaFlex, HiPerGuard and DPA 500: capacity range, efficiency, behaviour under AI load swings, and named Nordic references. The Telia Helsinki project is the one Claude already cites.</p>
+<p class="ev"><b>Evidence:</b> on "best UPS systems for a large data center", ABB is 4th in ChatGPT and absent from AI Mode, AI Overviews and Claude. On the AI-rack question ChatGPT leaves ABB out and AI Mode ranks it 4th. Vertiv leads that question on all four surfaces.</p></div></details>
+<details name="fixes"><summary><span class="n">4</span><span class="t">Publish ABB's own comparison and selection content</span></summary>
+<div class="body"><p>Molded case vs air breaker, soft starter vs drive, ABB vs Schneider Electric vs Siemens. Put the comparison on abb.com so ABB's pages, not a reseller's, are the cited source.</p>
+<p class="ev"><b>Evidence:</b> ABB leads selection answers, yet a trader's blog (stoklink.com) is cited in 6 answers, and its "Emax 2 vs Masterpact MTZ vs SENTRON" comparison is a source in Claude's breaker answers.</p></div></details>
+<details name="fixes"><summary><span class="n">5</span><span class="t">Re-run this set every month and give each team its slice</span></summary>
+<div class="body"><p>Repeat the 20 questions on the four surfaces, add Finnish and Swedish versions, and track three numbers: share of answers naming ABB, position, and answers citing ABB pages. Use a signed-in ChatGPT or the API to capture its sources.</p>
+<p class="ev"><b>Evidence:</b> one run per question gives a snapshot. A monthly series separates a real change from the normal variation in AI answers.</p></div></details>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="method-h">
+<div class="wrap">
+<h2 class="title" id="method-h">How this was measured</h2>
+<dl class="method">
+<dt>Questions</dt><dd>20 buyer questions: where to buy (6), product selection (6), data centers (5) and three that name ABB (13, 19, 20). Each was asked once on 19 November 2026.</dd>
+<dt>Surfaces</dt><dd>ChatGPT as a guest with web search. Google AI Mode and AI Overviews from a signed-in Chrome profile in Helsinki, so results lean toward Finland. Claude in three separate sessions with web search and no context about ABB or the asker; each session listed the brands in its own answer.</dd>
+<dt>Position</dt><dd>The order of first mention in the answer text, matched against a list of 47 brands and distributors. It is not always the model's own ranking.</dd>
+<dt>Limits</dt><dd>AI Overviews appeared for 13 of the 17 unbranded questions, so its figures use 13 answers. Answers vary from run to run, so treat single cells as indicative.</dd>
+<dt>Product names</dt><dd>Names that appear in answers, such as Emax 2, MegaFlex and HiPerGuard, count as ABB mentions.</dd>
+</dl>
+</div>
+</section>
+</main>
+
+<footer><div class="wrap"><p>Prepared for ABB's Buying Opportunities EcoSystem team by Artur. Independent work using public AI tools and public web pages, not an ABB product. Colors and type follow abb.com; the ABB logo is not used. The ABBvoice typeface loads only where it is installed, otherwise the page uses Helvetica or Arial.</p></div></footer>
+
+<script>
+(function(){
+  var d=document.documentElement, b=document.getElementById('theme'), mq=window.matchMedia('(prefers-color-scheme: dark)');
+  function isDark(){var t=d.getAttribute('data-theme'); return t? t==='dark' : mq.matches;}
+  function paint(){var on=isDark(); b.setAttribute('aria-pressed', on?'true':'false'); b.textContent= on?'Dark mode: on':'Dark mode: off';}
+  b.addEventListener('click',function(){var n=isDark()?'light':'dark'; d.setAttribute('data-theme',n); try{localStorage.setItem('abb-theme',n);}catch(e){} paint();});
+  if(mq.addEventListener){mq.addEventListener('change',paint);}
+  paint();
+  var tl=document.querySelector('[role=tablist]'); if(!tl) return;
+  var tabs=[].slice.call(tl.querySelectorAll('[role=tab]'));
+  function sel(t,focus){tabs.forEach(function(x){var on=x===t; x.setAttribute('aria-selected',on?'true':'false'); x.tabIndex=on?0:-1; var p=document.getElementById(x.getAttribute('aria-controls')); if(p){p.hidden=!on;}}); if(focus){t.focus();}}
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(t,false);});
+    t.addEventListener('keydown',function(e){var n=null,k=e.key;
+      if(k==='ArrowRight'){n=tabs[(i+1)%tabs.length];} else if(k==='ArrowLeft'){n=tabs[(i-1+tabs.length)%tabs.length];} else if(k==='Home'){n=tabs[0];} else if(k==='End'){n=tabs[tabs.length-1];}
+      if(n){e.preventDefault(); sel(n,true);}});
+  });
+  sel(tabs[0],false);
+})();
+</script>
+</body>
+</html>
